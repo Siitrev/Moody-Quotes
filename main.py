@@ -2,9 +2,10 @@ from kivy.app import App
 from kivy.app import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import json
-from collections import defaultdict
 from datetime import datetime
+import logging
 
+logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
 Builder.load_file("design.kv")
 
 
@@ -15,21 +16,27 @@ class LoginScreen(Screen):
 
 class SignUpScreen(Screen):
     def add_user(self, uname, pword):
-        def default_key():
-            return 0
+        u_exist = 1
         with open("users.json") as file:
             try:
-                users = defaultdict(default_key,json.load(file))
+                users = json.load(file)
             except json.decoder.JSONDecodeError:
                 users = {}
-                
-        if len(users.keys()) == 0:
-                users.setdefault("user1",{"name":uname,"password":hash(pword),"created": str(datetime.now())})
-                pass
+            
+        for v in users.values():
+            if v["name"] == uname:
+                u_exist = 0
+                break
+        if u_exist:users.setdefault("user"+str(len(users)+1),
+                        {"name":uname,
+                         "password":hash(pword),
+                         "created": datetime.now().strftime("%d-%m-%Y %H:%M")})
         else:
-            print("bruh")
-        print(users)
-        print("tal")
+            logging.critical("DANY UZYTKOWNIK ISTNIEJE")
+        with open("users.json","w") as file:
+            json.dump(users,file)
+        
+
         
 
 class RootWidget(ScreenManager):
