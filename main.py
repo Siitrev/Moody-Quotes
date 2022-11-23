@@ -15,8 +15,9 @@ class LoginScreen(Screen):
     pass
 
 class SignUpScreen(Screen):
-    def add_user(self, uname, pword):
+    def add_user(self, uname:str, pword:str):
         u_exist = 1
+        uname = uname.strip()
         with open("users.json") as file:
             try:
                 users = json.load(file)
@@ -27,7 +28,7 @@ class SignUpScreen(Screen):
             if v["name"] == uname:
                 u_exist = 0
                 break
-        if u_exist:users.setdefault("user"+str(len(users)+1),
+        if u_exist and len(uname):users.setdefault("user"+str(len(users)+1),
                         {"name":uname,
                          "password":hash(pword),
                          "created": datetime.now().strftime("%d-%m-%Y %H:%M")})
