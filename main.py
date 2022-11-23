@@ -3,6 +3,7 @@ from kivy.app import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import json
 from collections import defaultdict
+from datetime import datetime
 
 Builder.load_file("design.kv")
 
@@ -17,11 +18,18 @@ class SignUpScreen(Screen):
         def default_key():
             return 0
         with open("users.json") as file:
-            users = defaultdict(default_key,json.loads(file))
-        if users[uname] == 0:
-            print("Mozna stworzyc konto")
+            try:
+                users = defaultdict(default_key,json.load(file))
+            except json.decoder.JSONDecodeError:
+                users = {}
+                
+        if len(users.keys()) == 0:
+                users.setdefault("user1",{"name":uname,"password":hash(pword),"created": str(datetime.now())})
+                pass
         else:
-            print("Nie mozna stworzyc konta")
+            print("bruh")
+        print(users)
+        print("tal")
         
 
 class RootWidget(ScreenManager):
