@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 import logging
 from hashlib import sha256
+from random import randint
+from os import listdir
 
 logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
 Builder.load_file("design.kv")
@@ -12,10 +14,11 @@ Builder.load_file("design.kv")
 
 class LoginScreen(Screen):
     def sign_up(self):
+        self.manager.transition.direction = "left"
         self.manager.current =  "sign_up_screen"
         
     def login(self,uname:str,pword:str):
-        print()
+
         with open("users.json") as file:
             try:
                 users = json.load(file)
@@ -23,10 +26,11 @@ class LoginScreen(Screen):
                 users = {}
                 
         if uname in users and users[uname]["password"] == sha256(pword.encode()).hexdigest():
+            self.manager.transition.direction = "left"
+            self.ids.wrong_login.text = ""
             self.manager.current = "login_screen_success"
         else:
             self.ids.wrong_login.text = "Wrong username or password. Try again"
-    pass
 
 class SignUpScreen(Screen):
     def add_user(self, uname:str, pword:str):
@@ -64,7 +68,17 @@ class LoginScreenSuccess(Screen):
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-    pass
+        
+    def get_quote(self, feel:str):
+        feel = feel.lower()
+        feelings = [x[:-4] for x in listdir("./quotes")]
+        if feel in feelings:
+            with open(f"./quotes/{feel}.txt") as file:
+                quotes = [x.strip() for x in file.readlines()]
+            self.ids.quote.text = quotes[randint(0,6)] 
+        else:
+            self.ids.quote.text = "Please try another emotion"
+        
 
 class RootWidget(ScreenManager):
     pass

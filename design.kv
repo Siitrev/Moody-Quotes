@@ -16,7 +16,7 @@
                 text: "Login"
                 on_press: root.login(root.ids.username.text,root.ids.password.text)
             Label:
-                id: lwrong_login
+                id: wrong_login
                 color: "yellow"
                 text: ""
         GridLayout:
@@ -36,10 +36,13 @@
         Label:
             text: "How do you feel?"
         TextInput:
+            id: feeling
             hint_text: "Things to try: happy, sad, unloved"
         Button:
             text: "Enlighten me"
+            on_press: root.get_quote(root.ids.feeling.text)
         Label:
+            id: quote
             text: ""
 
 <SignUpScreenSuccess>:
