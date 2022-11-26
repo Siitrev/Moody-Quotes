@@ -4,35 +4,56 @@
         cols: 1
         GridLayout:
             cols: 1
+            padding: 15,15
+            spacing: 20,20
             Label:
                 text: "User Login"
+                font_size: "20sp"
             TextInput:
                 id: username
                 hint_text: "Username"
             TextInput:
                 id: password
+                password: True
                 hint_text: "Password"
-            Button:
-                text: "Login"
-                on_press: root.login(root.ids.username.text,root.ids.password.text)
+            RelativeLayout:
+                Button:
+                    text: "Login"
+                    on_press: root.login(root.ids.username.text,root.ids.password.text)
+                    size_hint: 0.3,0.5
+                    pos_hint: {"center_x":0.5,"center_y":0.6}
             Label:
                 id: wrong_login
                 color: "yellow"
                 text: ""
         GridLayout:
             cols: 2
+            size_hint: 0.2, 0.2
+            padding: 10,10
+            spacing: 10,0
             Button:
                 text: "Forgot Password?"
+                background_color: 1,1,1,0
+                color: "#3f4beb"
+                opacity: 1 if self.state == "normal" else 0.5
             Button:
                 text: "Sign Up"
                 on_press: root.sign_up()
+                background_color: 1,1,1,0
+                color: "#3f4beb"
+                opacity: 1 if self.state == "normal" else 0.5
 
 <LoginScreenSuccess>:
     GridLayout:
         cols:1
-        Button:
-            text: "Logout"
-            on_press: root.log_out()
+        padding: 30,30 
+        spacing: 30,30
+        RelativeLayout:
+            ImageButton:
+                on_press: root.log_out()
+                source: "logout_hover.png" if self.hovered else "logout_nothover.png"
+                size_hint: 0.35,0.35
+                pos_hint: {"center_x": 0.93, "center_y": 0.8}
         Label:
             text: "How do you feel?"
         TextInput:
@@ -41,33 +62,60 @@
         Button:
             text: "Enlighten me"
             on_press: root.get_quote(root.ids.feeling.text)
-        Label:
-            id: quote
-            text: ""
+        ScrollView:    
+            Label:
+                id: quote
+                text: ""
+                text_size: self.width,None
+                size_hint_y: None
+                height: self.texture_size[1]
 
 <SignUpScreenSuccess>:
     GridLayout:
         cols:1
-        Label:
-            text:"Sign up successful"
-        Button:
-            text:"Go back to login screen"
-            on_press: root.go_back()
+        padding: 30, 30
+        spacing: 30, 30
+        RelativeLayout:
+            Label:
+                text:"Sign up successful!"
+                size_hint: 0.2, 0.2
+                pos_hint: {"center_x":0.5,"center_y":0.9}
+                font_size: "30sp"
+            Button:
+                padding: 10, 10
+                text:"Go back to login screen"
+                size_hint: 0.2, 0.2
+                pos_hint: {"center_x":0.5,"center_y":0.1}
+                on_press: root.go_back()
+                size_hint_x: None
+                width: self.texture_size[0]
+                height: self.texture_size[1]
 
 <SignUpScreen>:
     GridLayout:
         cols: 1
+        padding: 15, 15
+        spacing: 20, 20
         Label:
-            text: "Sign up for a yes!"
+            text: "Sign up!"
         TextInput:
             id: username
             hint_text: "Username"
         TextInput:
             id: password
             hint_text: "Password"
-        Button:
-            text: "Submit"
-            on_press: root.add_user(root.ids.username.text, root.ids.password.text)
+        TextInput:
+            id: email
+            hint_text: "Email"
+        GridLayout:
+            cols: 2
+            spacing: 20, 20
+            Button:
+                text: "Go back"
+                on_press: root.back_to_login()
+            Button:
+                text: "Submit"
+                on_press: root.add_user(root.ids.username.text, root.ids.password.text, root.ids.email.text)
 
 <RootWidget>
     LoginScreen:
