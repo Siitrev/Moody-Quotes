@@ -8,26 +8,34 @@ from hashlib import sha256
 from random import choice
 from os import listdir
 from hoverable import HoverBehavior
-import logging, json
+import logging
+import json
+import re
 
 
-logging.basicConfig(level=logging.DEBUG,format='%(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s - %(levelname)s - %(message)s')
 Builder.load_file("design.kv")
+
+# Creating screen for login
 
 
 class LoginScreen(Screen):
+    # Changing the screen to sign up screen
     def sign_up(self):
         self.manager.transition.direction = "left"
-        self.manager.current =  "sign_up_screen"
-        
-    def login(self,uname:str,pword:str):
+        self.manager.current = "sign_up_screen"
+
+    # Logging in
+    def login(self, uname: str, pword: str):
 
         with open("users.json") as file:
             try:
                 users = json.load(file)
             except json.decoder.JSONDecodeError:
                 users = {}
-                
+
+        # Checking if password and username are correct
         if uname in users and users[uname]["password"] == sha256(pword.encode()).hexdigest():
             self.manager.transition.direction = "left"
             self.ids.wrong_login.text = ""
@@ -35,8 +43,26 @@ class LoginScreen(Screen):
         else:
             self.ids.wrong_login.text = "Wrong username or password. Try again"
 
+# Creating sign up screen
 class SignUpScreen(Screen):
-    def add_user(self, uname:str, pword:str, email:str):
+    
+    # Methods for validating input
+    def validate_email(self, email):
+        regex = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
+        return re.fullmatch(regex, email)
+
+    def validate_password(self, pword):
+        regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+        return re.match(regex, pword)
+
+    def email_exist(self, email: str, db: dict):
+        for v in db.values():
+            if v["email"] == email:
+                return 1
+        return 0
+
+    # Method that adds user
+    def add_user(self, uname: str, pword: str, email: str):
         u_exist = 1
         uname = uname.strip()
         with open("users.json") as file:
@@ -44,73 +70,92 @@ class SignUpScreen(Screen):
                 users = json.load(file)
             except json.decoder.JSONDecodeError:
                 users = {}
-            
-        for v,v2 in users.items():
-            if uname in v:
-                u_exist = 0
-                break
-            if v2["email"] == email:
-                u_exist = 0
-                break
-        if u_exist and len(uname) and len(email):
+        # Validation
+        if uname in users:
+            u_exist = 0
+        check_email = self.validate_email(email)
+        check_pass = self.validate_password(pword)
+        check_email_exist = self.email_exist(email, users)
+        if u_exist and len(uname) > 5 and check_email and check_pass:
             users.setdefault(uname,
-            {"name":uname,
-            "password":sha256(pword.encode()).hexdigest(),
-            "email": email, 
-            "created": datetime.now().strftime("%d-%m-%Y %H:%M")})
+                             {"name": uname,
+                              "password": sha256(pword.encode()).hexdigest(),
+                              "email": email,
+                              "created": datetime.now().strftime("%d-%m-%Y %H:%M")})
             self.ids.username.text = ""
             self.ids.password.text = ""
             self.ids.email.text = ""
             self.manager.current = "sign_up_screen_success"
         else:
-            logging.critical("DANY UZYTKOWNIK ISTNIEJE")
-        with open("users.json","w") as file:
-            json.dump(users,file)
-    
+            # Alert about wrong input
+            wrong_input = ""
+            if not check_pass:
+                wrong_input = wrong_input + "Password is not strong. "
+            if not check_email:
+                wrong_input = wrong_input + "Wrong email. "
+            if check_email_exist:
+                wrong_input = wrong_input + "This email is used. "
+            if not u_exist and len(uname) > 0:
+                wrong_input = wrong_input + "This user already exists "
+            if len(uname) == 0:
+                wrong_input = wrong_input + "Wrong username"
+            self.ids.wrong_sign_up.text = wrong_input
+            logging.critical("INCORRECT SIGN UP")
+        with open("users.json", "w") as file:
+            json.dump(users, file)
+
+    # Changing screen to login screen
     def back_to_login(self):
         self.ids.username.text = ""
         self.ids.password.text = ""
         self.ids.email.text = ""
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-        
+
+# Creating sign up screen when signing up succeeds
 class SignUpScreenSuccess(Screen):
     def go_back(self):
         self.manager.transition.direction = "right"
-        self.manager.current =  "login_screen"
+        self.manager.current = "login_screen"
     pass
 
+# Creating screen that shows up when logging in succeeds
 class LoginScreenSuccess(Screen):
+    # Method for logging out
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-        
-    def get_quote(self, feel:str):
+    # Getting quote from files
+    def get_quote(self, feel: str):
         feel = feel.lower()
         feelings = [x[:-4] for x in listdir("./quotes")]
         if feel in feelings:
-            
+
             with open(f"./quotes/{feel}.txt") as file:
                 quotes = file.readlines()
             oldQuote = self.ids.quote.text
-            newQuote =  choice(quotes)
-            
+            newQuote = choice(quotes)
+
             while oldQuote == newQuote:
                 newQuote = choice(quotes)
-                
+
             self.ids.quote.text = newQuote
         else:
             self.ids.quote.text = "Please try another emotion"
-        
+
 
 class RootWidget(ScreenManager):
     pass
 
-class ImageButton(ButtonBehavior,HoverBehavior, Image):
+# Special class for image button
+class ImageButton(ButtonBehavior, HoverBehavior, Image):
     pass
+
+
 class MainApp(App):
     def build(self):
         return RootWidget()
-    
+
+# running the app
 if __name__ == "__main__":
     MainApp().run()

@@ -98,24 +98,44 @@
         spacing: 20, 20
         Label:
             text: "Sign up!"
-        TextInput:
-            id: username
-            hint_text: "Username"
-        TextInput:
-            id: password
-            hint_text: "Password"
-        TextInput:
-            id: email
-            hint_text: "Email"
+            size_hint: 0.2,0.2
+            font_size: "30sp"
         GridLayout:
-            cols: 2
-            spacing: 20, 20
+            cols: 1
+            spacing: 0, 30
+            TextInput:
+                id: username
+                hint_text: "Username"
+                size_hint: 0.2,0.2
+            TextInput:
+                id: password
+                password: True
+                hint_text: "Password"
+                size_hint: 0.2,0.2
+            TextInput:
+                id: email
+                hint_text: "Email"
+                size_hint: 0.2,0.2
+        RelativeLayout:
             Button:
+                pos_hint: {"center_x":0.25,"center_y":0.8}
+                size_hint: 0.2,0.2
+                padding: 10, 0
+                size_hint_x: None
                 text: "Go back"
                 on_press: root.back_to_login()
             Button:
+                size_hint: 0.2,0.2
+                pos_hint: {"center_x":0.75,"center_y":0.8}
+                padding: 10, 0
+                size_hint_x: None
                 text: "Submit"
                 on_press: root.add_user(root.ids.username.text, root.ids.password.text, root.ids.email.text)
+            Label:
+                id: wrong_sign_up
+                text: ""
+                color: "yellow"
+                pos_hint: {"center_x":0.5,"center_y":0.2}
 
 <RootWidget>
     LoginScreen:
