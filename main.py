@@ -7,6 +7,7 @@ from datetime import datetime
 from hashlib import sha256
 from random import choice
 from os import listdir
+from os.path import getsize
 from hoverable import HoverBehavior
 import logging
 import json
@@ -29,11 +30,10 @@ class LoginScreen(Screen):
     # Logging in
     def login(self, uname: str, pword: str):
 
-        with open("users.json") as file:
-            try:
+        if getsize("users.json"):
+            with open("users.json") as file:
                 users = json.load(file)
-            except json.decoder.JSONDecodeError:
-                users = {}
+        else: users = {}
 
         # Checking if password and username are correct
         if uname in users and users[uname]["password"] == sha256(pword.encode()).hexdigest():
@@ -44,39 +44,43 @@ class LoginScreen(Screen):
             self.ids.wrong_login.text = "Wrong username or password. Try again"
 
 # Creating sign up screen
+
+
 class SignUpScreen(Screen):
-    
+
     # Methods for validating input
-    def validate_email(self, email):
+    def __validate_email(self, email):
         regex = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
         return re.fullmatch(regex, email)
 
-    def validate_password(self, pword):
+    def __validate_password(self, pword):
         regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
         return re.match(regex, pword)
 
-    def email_exist(self, email: str, db: dict):
+    def __email_exist(self, email: str, db: dict):
         for v in db.values():
             if v["email"] == email:
                 return 1
         return 0
+    def __validate_username(self, uname:str):
+        regex = r"^[A-Za-z0-9#$_&%!<>?-]{5,}$"
+        return re.match(regex, uname)
 
-    # Method that adds user
+    # Method that adds user and validates password, email and username
     def add_user(self, uname: str, pword: str, email: str):
-        u_exist = 1
-        uname = uname.strip()
-        with open("users.json") as file:
-            try:
+        if getsize("users.json"):
+            with open("users.json") as file:
                 users = json.load(file)
-            except json.decoder.JSONDecodeError:
-                users = {}
-        # Validation
-        if uname in users:
-            u_exist = 0
-        check_email = self.validate_email(email)
-        check_pass = self.validate_password(pword)
-        check_email_exist = self.email_exist(email, users)
-        if u_exist and len(uname) > 5 and check_email and check_pass:
+        else: users = {}
+                
+        # Validation 
+        check_user = self.__validate_username(uname)
+        check_user_exist = 0 if uname in users else 1
+        check_email = self.__validate_email(email)
+        check_pass = self.__validate_password(pword)
+        check_email_exist = self.__email_exist(email, users)
+        
+        if check_user_exist and check_user and check_email and check_pass:
             users.setdefault(uname,
                              {"name": uname,
                               "password": sha256(pword.encode()).hexdigest(),
@@ -95,12 +99,15 @@ class SignUpScreen(Screen):
                 wrong_input = wrong_input + "Wrong email. "
             if check_email_exist:
                 wrong_input = wrong_input + "This email is used. "
-            if not u_exist and len(uname) > 0:
+            if not check_user_exist and len(uname) > 0:
                 wrong_input = wrong_input + "This user already exists "
-            if len(uname) == 0:
+            if check_user:
                 wrong_input = wrong_input + "Wrong username"
+                
             self.ids.wrong_sign_up.text = wrong_input
+            
             logging.critical("INCORRECT SIGN UP")
+            
         with open("users.json", "w") as file:
             json.dump(users, file)
 
@@ -113,6 +120,8 @@ class SignUpScreen(Screen):
         self.manager.current = "login_screen"
 
 # Creating sign up screen when signing up succeeds
+
+
 class SignUpScreenSuccess(Screen):
     def go_back(self):
         self.manager.transition.direction = "right"
@@ -120,11 +129,14 @@ class SignUpScreenSuccess(Screen):
     pass
 
 # Creating screen that shows up when logging in succeeds
+
+
 class LoginScreenSuccess(Screen):
     # Method for logging out
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
+    
     # Getting quote from files
     def get_quote(self, feel: str):
         feel = feel.lower()
@@ -148,13 +160,19 @@ class RootWidget(ScreenManager):
     pass
 
 # Special class for image button
+
+
 class ImageButton(ButtonBehavior, HoverBehavior, Image):
     pass
 
 
+class ForgotPasswordScreen(Screen):
+    pass
+
 class MainApp(App):
     def build(self):
         return RootWidget()
+
 
 # running the app
 if __name__ == "__main__":
