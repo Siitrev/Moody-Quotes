@@ -4,7 +4,6 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
 from datetime import datetime
-from hashlib import sha256
 from random import choice
 from os import listdir
 from os.path import getsize
@@ -12,7 +11,7 @@ from hoverable import HoverBehavior
 import logging
 import json
 import re
-
+from requestHandler import RequestHandler
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s - %(levelname)s - %(message)s')
@@ -30,13 +29,10 @@ class LoginScreen(Screen):
     # Logging in
     def login(self, uname: str, pword: str):
 
-        if getsize("users.json"):
-            with open("users.json") as file:
-                users = json.load(file)
-        else: users = {}
-
         # Checking if password and username are correct
-        if uname in users and users[uname]["password"] == sha256(pword.encode()).hexdigest():
+        handler = RequestHandler()
+        
+        if handler.login(uname,pword)["success"]:
             self.manager.transition.direction = "left"
             self.ids.wrong_login.text = ""
             self.manager.current = "login_screen_success"
@@ -54,38 +50,29 @@ class SignUpScreen(Screen):
         return re.fullmatch(regex, email)
 
     def __validate_password(self, pword):
-        regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+        regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,40}$"
         return re.match(regex, pword)
 
-    def __email_exist(self, email: str, db: dict):
-        for v in db.values():
-            if v["email"] == email:
-                return 1
-        return 0
     def __validate_username(self, uname:str):
-        regex = r"^[A-Za-z0-9#$_&%!<>?-]{5,}$"
+        regex = r"^[A-Za-z0-9#$_&%!<>?-]{5,30}$"
         return re.match(regex, uname)
+    
+    def __email_and_user_exist(self,uname:str,email:str):
+        handler = RequestHandler()
+        return handler.check_user_exist(uname,email)
 
     # Method that adds user and validates password, email and username
     def add_user(self, uname: str, pword: str, email: str):
-        if getsize("users.json"):
-            with open("users.json") as file:
-                users = json.load(file)
-        else: users = {}
-                
+        
         # Validation 
+        check_email_exist,check_user_exist = self.__email_and_user_exist(uname,email).values()
         check_user = self.__validate_username(uname)
-        check_user_exist = 0 if uname in users else 1
         check_email = self.__validate_email(email)
         check_pass = self.__validate_password(pword)
-        check_email_exist = self.__email_exist(email, users)
         
-        if check_user_exist and check_user and check_email and check_pass:
-            users.setdefault(uname,
-                             {"name": uname,
-                              "password": sha256(pword.encode()).hexdigest(),
-                              "email": email,
-                              "created": datetime.now().strftime("%d-%m-%Y %H:%M")})
+        if not check_user_exist and check_user and check_email and check_pass:
+            handler = RequestHandler()
+            handler.add_user(uname,pword,email,datetime.now().strftime("%d-%m-%Y %H:%M"))
             self.ids.username.text = ""
             self.ids.password.text = ""
             self.ids.email.text = ""
@@ -99,7 +86,7 @@ class SignUpScreen(Screen):
                 wrong_input = wrong_input + "Wrong email. "
             if check_email_exist:
                 wrong_input = wrong_input + "This email is used. "
-            if not check_user_exist and len(uname) > 0:
+            if check_user_exist and len(uname) > 0:
                 wrong_input = wrong_input + "This user already exists "
             if check_user:
                 wrong_input = wrong_input + "Wrong username"
@@ -107,9 +94,6 @@ class SignUpScreen(Screen):
             self.ids.wrong_sign_up.text = wrong_input
             
             logging.critical("INCORRECT SIGN UP")
-            
-        with open("users.json", "w") as file:
-            json.dump(users, file)
 
     # Changing screen to login screen
     def back_to_login(self):

@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 kivy = "*"
+requests = "*"
 
 [dev-packages]
 
