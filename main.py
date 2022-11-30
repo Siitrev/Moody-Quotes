@@ -35,6 +35,7 @@ class LoginScreen(Screen):
         if handler.login(uname,pword)["success"]:
             self.manager.transition.direction = "left"
             self.ids.wrong_login.text = ""
+            print(self.ids)
             self.manager.current = "login_screen_success"
         else:
             self.ids.wrong_login.text = "Wrong username or password. Try again"
@@ -121,6 +122,10 @@ class LoginScreenSuccess(Screen):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
     
+    def change_password(self):
+        self.manager.transition.direction = "left"
+        self.manager.current = "change_password_screen"
+    
     # Getting quote from files
     def get_quote(self, feel: str):
         feel = feel.lower()
@@ -151,6 +156,9 @@ class ImageButton(ButtonBehavior, HoverBehavior, Image):
 
 
 class ForgotPasswordScreen(Screen):
+    pass
+
+class ChangePassword(Screen):
     pass
 
 class MainApp(App):
