@@ -57,18 +57,22 @@
             Button:
                 text: "Change password"
                 size_hint: 0.30,0.35
+                size_hint_x: None
+                width: self.texture_size[0]
                 padding: 10,0
-                pos_hint: {"center_x": 0.07, "center_y": 0.8}
+                pos_hint: {"center_x": 0.15, "center_y": 0.8}
                 on_press: root.change_password()
-            GridLayout:
-                cols:2
-                Label:
-                    text: "Logged as: "
-                    size_hint: 0.20,0.35
-                Label:
-                    id: logged_as
-                    size_hint: 0.20,0.35
-                    text: ""
+            Label:
+                text: "Logged as: "
+                size_hint: 0.20,0.35
+                font_size:"15sp"
+                pos_hint: {"center_x": 0.10, "center_y": 0.2}
+            Label:
+                id: logged_as
+                size_hint: 0.20,0.35
+                font_size:"15sp"
+                pos_hint: {"center_x": 0.35, "center_y": 0.2}
+                text: ""
         Label:
             text: "How do you feel?"
         TextInput:
@@ -152,6 +156,41 @@
                 color: "yellow"
                 pos_hint: {"center_x":0.5,"center_y":0.2}
 
+<ChangePasswordScreen>:
+    GridLayout:
+        cols: 1
+        GridLayout:
+            cols: 1
+            padding: 15,15
+            spacing: 20,20
+            TextInput:
+                id: old_pass
+                size_hint: 0.5,0.2
+                password: True
+                hint_text: "Old password"
+            TextInput:
+                id: new_pass
+                size_hint: 0.5,0.2
+                password: True
+                hint_text: "New password"
+            Label:
+                id: wrong_pass
+                size_hint: 0.5,0.2
+                color: "yellow"
+                text: ""
+            RelativeLayout:
+                Button:
+                    text: "Change"
+                    padding: 10,10
+                    spacing: 10,10
+                    on_press: root.change_password(root.ids.new_pass.text,root.ids.old_pass.text)
+                    size_hint: 0.2,0.5
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    pos_hint: {"center_x":0.5,"center_y":0.6}
+
 <RootWidget>
     LoginScreen:
         name: "login_screen"
@@ -161,5 +200,5 @@
         name: "sign_up_screen_success"
     LoginScreenSuccess:
         name: "login_screen_success"
-    ChangePassword:
+    ChangePasswordScreen:
         name: "change_password_screen"

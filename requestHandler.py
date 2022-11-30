@@ -43,4 +43,17 @@ class RequestHandler():
             return "Connection Timeout"
         except requests.RequestException:
             return "Request Exception"
+    
+    def change_password(self,uname:str, n_pass: str, o_pass: str):
+        try:
+            data = {"username":uname,
+                    "n_pass": sha256(n_pass.encode()).hexdigest(),
+                    "o_pass": sha256(o_pass.encode()).hexdigest()}
+            res = requests.post(
+                    url="https://Sitrev.pythonanywhere.com/change_password", json=data)
+            return res.json()
+        except requests.ConnectTimeout:
+            return "Connection Timeout"
+        except requests.RequestException:
+            return "Request Exception"
 

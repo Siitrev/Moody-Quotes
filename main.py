@@ -35,7 +35,9 @@ class LoginScreen(Screen):
         if handler.login(uname,pword)["success"]:
             self.manager.transition.direction = "left"
             self.ids.wrong_login.text = ""
-            print(self.ids)
+            self.ids.username.text = ""
+            self.ids.password.text = ""
+            self.manager.get_screen("login_screen_success").ids.logged_as.text = uname
             self.manager.current = "login_screen_success"
         else:
             self.ids.wrong_login.text = "Wrong username or password. Try again"
@@ -120,6 +122,7 @@ class LoginScreenSuccess(Screen):
     # Method for logging out
     def log_out(self):
         self.manager.transition.direction = "right"
+        self.ids.logged_as.text = ""
         self.manager.current = "login_screen"
     
     def change_password(self):
@@ -158,8 +161,29 @@ class ImageButton(ButtonBehavior, HoverBehavior, Image):
 class ForgotPasswordScreen(Screen):
     pass
 
-class ChangePassword(Screen):
-    pass
+class ChangePasswordScreen(Screen):
+    
+    def __validate_password(self, pword):
+        regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,40}$"
+        return re.match(regex, pword)
+    
+    def change_password(self,n_pass:str,o_pass:str):
+        handler = RequestHandler()
+        check_pass = self.__validate_password(n_pass)
+        username = self.manager.get_screen("login_screen_success").ids.logged_as.text
+        pass_good = handler.change_password(username,n_pass,o_pass)["success"]
+        if check_pass and pass_good:
+            self.manager.current = "login_screen_success"
+        else:
+            wrong_input =  ""
+            if not pass_good:
+                wrong_input += "Wrong password "
+            if not check_pass:
+                wrong_input += "Weak password"
+            self.ids.wrong_pass.text = wrong_input
+        
+        pass
+    
 
 class MainApp(App):
     def build(self):
