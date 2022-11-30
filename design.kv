@@ -35,6 +35,7 @@
                 text: "Forgot Password?"
                 background_color: 1,1,1,0
                 color: "#3f4beb"
+                on_press: root.forgot_pass()
                 opacity: 1 if self.state == "normal" else 0.5
             Button:
                 text: "Sign Up"
@@ -191,6 +192,34 @@
                     height: self.texture_size[1]
                     pos_hint: {"center_x":0.5,"center_y":0.6}
 
+<ForgotPasswordScreen>:
+    GridLayout:
+        cols: 1
+        GridLayout:
+            cols: 1
+            padding: 15,15
+            spacing: 20,20
+            TextInput:
+                id: email
+                size_hint: 0.5,0.2
+                hint_text: "Enter your email"
+            Label:
+                id: wrong_mail
+                size_hint: 0.5,0.2
+                color = "yellow"
+                text: ""
+            RelativeLayout:
+                Button:
+                    text: "Change"
+                    padding: 10,10
+                    spacing: 10,10
+                    on_press: root.change_password(root.ids.new_pass.text,root.ids.old_pass.text)
+                    size_hint: 0.2,0.5
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    pos_hint: {"center_x":0.5,"center_y":0.6}
 <RootWidget>
     LoginScreen:
         name: "login_screen"
@@ -202,3 +231,5 @@
         name: "login_screen_success"
     ChangePasswordScreen:
         name: "change_password_screen"
+    ForgotPasswordScreen:
+        name: "forgot_password_screen"

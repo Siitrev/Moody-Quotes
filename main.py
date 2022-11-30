@@ -41,6 +41,9 @@ class LoginScreen(Screen):
             self.manager.current = "login_screen_success"
         else:
             self.ids.wrong_login.text = "Wrong username or password. Try again"
+            
+    def forgot_pass(self):
+        self.manager.current = "forgot_password_screen"
 
 # Creating sign up screen
 
