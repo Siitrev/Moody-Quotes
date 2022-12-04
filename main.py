@@ -158,8 +158,6 @@ class RootWidget(ScreenManager):
     pass
 
 # Special class for image button
-
-
 class ImageButton(ButtonBehavior, HoverBehavior, Image):
     pass
 
@@ -185,12 +183,13 @@ class ForgotPasswordScreen(Screen):
         else:
             self.ids.wrong_data.text = "Username/email doesn't exist"
 
-
+# Screen for accepting the token
 class TokenScreen(Screen):
     def __check_t(self, token: str):
         regex = r"^[0-9]{5}$"
         return re.match(regex, token)
 
+    # Verifying a token
     def check_token(self, token: str):
         handler = RequestHandler()
         uname = self.manager.get_screen(
@@ -210,6 +209,7 @@ class TokenScreen(Screen):
     pass
 
 
+# Screen for changing password after logging in
 class ChangePasswordScreen1(Screen):
 
     def __validate_password(self, pword):
@@ -233,7 +233,7 @@ class ChangePasswordScreen1(Screen):
                 wrong_input += "Weak password"
             self.ids.wrong_pass.text = wrong_input
 
-
+# Screen for changing password after selecting "forgot password" option
 class ChangePasswordScreen2(Screen):
 
     def __validate_password(self, pword):
