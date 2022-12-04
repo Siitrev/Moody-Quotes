@@ -24,7 +24,8 @@ class RequestHandler():
             data = {"username": uname,
                     "password": sha256(pword.encode()).hexdigest(),
                     "email": email,
-                    "created": created}
+                    "created": created,
+                    "token": ""}
             requests.post(
                 url="https://Sitrev.pythonanywhere.com/sign_up", json=data)
         except requests.ConnectTimeout:
@@ -56,4 +57,35 @@ class RequestHandler():
             return "Connection Timeout"
         except requests.RequestException:
             return "Request Exception"
-
+    def send_mail(self, uname: str, email: str):
+        try:
+            data = {"username": uname,
+                    "email": email}
+            requests.post(
+                url="https://Sitrev.pythonanywhere.com/send_mail", json=data)
+        except requests.ConnectTimeout:
+            return "Connection Timeout"
+        except requests.RequestException:
+            return "Request Exception"
+    def check_token(self, uname: str, token: str):
+        try:
+            data = {"username": uname,
+                    "code": token}
+            res = requests.post(
+                url="https://Sitrev.pythonanywhere.com/check_token", json=data)
+            print(res)
+            return res.json()
+        except requests.ConnectTimeout:
+            return "Connection Timeout"
+        except requests.RequestException:
+            return "Request Exception"
+    def update_password(self,uname:str, n_pass: str):
+        try:
+            data = {"username":uname,
+                    "n_pass": sha256(n_pass.encode()).hexdigest()}
+            requests.post(
+                    url="https://Sitrev.pythonanywhere.com/update_password", json=data)
+        except requests.ConnectTimeout:
+            return "Connection Timeout"
+        except requests.RequestException:
+            return "Request Exception"

@@ -157,7 +157,7 @@
                 color: "yellow"
                 pos_hint: {"center_x":0.5,"center_y":0.2}
 
-<ChangePasswordScreen>:
+<ChangePasswordScreen1>:
     GridLayout:
         cols: 1
         GridLayout:
@@ -192,6 +192,36 @@
                     height: self.texture_size[1]
                     pos_hint: {"center_x":0.5,"center_y":0.6}
 
+<ChangePasswordScreen2>:
+    GridLayout:
+        cols: 1
+        GridLayout:
+            cols: 1
+            padding: 15,30
+            spacing: 20,20
+            TextInput:
+                id: new_pass
+                size_hint: 0.5,0.2
+                password: True
+                hint_text: "New password"
+            Label:
+                id: wrong_pass
+                size_hint: 0.5,0.2
+                color: "yellow"
+                text: ""
+            RelativeLayout:
+                Button:
+                    text: "Change"
+                    padding: 10,10
+                    spacing: 10,10
+                    on_press: root.update_password(root.ids.new_pass.text)
+                    size_hint: 0.2,0.5
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    pos_hint: {"center_x":0.5,"center_y":0.7}
+
 <ForgotPasswordScreen>:
     GridLayout:
         cols: 1
@@ -200,26 +230,71 @@
             padding: 15,15
             spacing: 20,20
             TextInput:
+                id: username
+                size_hint: 0.5,0.2
+                hint_text: "Enter your username"
+            TextInput:
                 id: email
                 size_hint: 0.5,0.2
                 hint_text: "Enter your email"
             Label:
-                id: wrong_mail
+                id: wrong_data
                 size_hint: 0.5,0.2
-                color = "yellow"
+                color: "yellow"
                 text: ""
             RelativeLayout:
                 Button:
                     text: "Change"
                     padding: 10,10
                     spacing: 10,10
-                    on_press: root.change_password(root.ids.new_pass.text,root.ids.old_pass.text)
+                    on_press: root.change_password(root.ids.username.text,root.ids.email.text)
                     size_hint: 0.2,0.5
                     size_hint_x: None
                     width: self.texture_size[0]
                     size_hint_y: None
                     height: self.texture_size[1]
-                    pos_hint: {"center_x":0.5,"center_y":0.6}
+                    pos_hint: {"center_x":0.8,"center_y":0.6}
+                Button:
+                    text: "Go back"
+                    padding: 10,10
+                    spacing: 10,10
+                    on_press: root.go_back()
+                    size_hint: 0.2,0.5
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    pos_hint: {"center_x":0.2,"center_y":0.6}
+<TokenScreen>:
+    GridLayout:
+        cols: 1
+        padding: 15,15
+        spacing: 20,20 
+        Label:
+            text: "Check your mail for a code and pass it here"
+            size_hint: 0.5,0.2
+        TextInput:
+            id: token
+            size_hint: 0.5,0.2
+            hint_text: "Type your code here..."
+        Label:
+            id: wrong_code
+            size_hint: 0.5,0.2
+            color: "yellow"
+        RelativeLayout:
+            Button:
+                text: "Submit"
+                on_press: root.check_token(root.ids.token.text)
+                padding: 10,10
+                spacing: 10,10
+                size_hint: 0.2,0.5
+                size_hint_x: None
+                width: self.texture_size[0]
+                size_hint_y: None
+                height: self.texture_size[1]
+                pos_hint: {"center_x":0.5,"center_y":0.4}
+                
+
 <RootWidget>
     LoginScreen:
         name: "login_screen"
@@ -229,7 +304,11 @@
         name: "sign_up_screen_success"
     LoginScreenSuccess:
         name: "login_screen_success"
-    ChangePasswordScreen:
-        name: "change_password_screen"
+    ChangePasswordScreen1:
+        name: "change_password_screen_1"
+    ChangePasswordScreen2:
+        name: "change_password_screen_2"
     ForgotPasswordScreen:
         name: "forgot_password_screen"
+    TokenScreen:
+        name: "token_screen"

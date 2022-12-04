@@ -1,1 +1,1 @@
-change_password_screen
+print(handler.check_token("Sitrev","12487"))
