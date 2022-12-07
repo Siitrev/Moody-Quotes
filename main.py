@@ -255,7 +255,7 @@ class ChangePasswordScreen2(Screen):
                 wrong_input += "Weak password"
             self.ids.wrong_pass.text = wrong_input
 
-
+# Building the app
 class MainApp(App):
     def build(self):
         return RootWidget()
